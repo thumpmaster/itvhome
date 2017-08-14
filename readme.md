@@ -1,6 +1,8 @@
-## ITV HOMAE PAGE
+## ITV HOME PAGE DEMO
 
-This app show case a demo of itv hub home page. The app is built using PHP and Laravel framework.
+This app show case a demo of itv hub home page. The app is built using PHP and Laravel framework. 
+
+The content comes from the rest api which is then processed by a middle layer and then passed to the front-end. 
 
 Install PHP 7 and laravel before accessing the app.
 
