@@ -1,9 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Http\Request;
+use App\ContentFeed;
 use Illuminate\Support\Facades\Log;
-use App\RestClient;
 
 /**
  * @property  RestClient
@@ -15,9 +14,10 @@ class HomePageController extends Controller
 
     public function index()
     {
-        $restClient = new RestClient;
-        $contentFromApi = $restClient->getParsedApiResponse();
-        return view('pages.homepage', ['content' => $this->getContentWall($contentFromApi)]);
+        $feed = new ContentFeed();
+        $contentFeed = $feed->getFeed();
+        log::info('Content for the home page ' . json_encode($contentFeed));
+        return view('pages.homepage', ['content' => $this->getContentWall($contentFeed)]);
     }
 
 

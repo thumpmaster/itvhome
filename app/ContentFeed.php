@@ -1,23 +1,43 @@
 <?php
 
-namespace App;
+/*
+|--------------------------------------------------------------------------
+| Middle layer in between the controller and rest client
+|--------------------------------------------------------------------------
+|
+| All the business logic goes in this class.
+| This class parses the api response
+| and returns the data to the controller
+|
+*/
 
+namespace App;
 
 use Illuminate\Support\Facades\Config;
 
+
 class ContentFeed
 {
-
+    private $restClient;
     private $feed = [];
     const defaultImageQuality = 80;
     const heroImageWidth = 1200;
     const smallImageWidth = 320;
 
-    /**
-     * @param $content
-     */
-    public function setFeed($content)
+    public function __construct()
     {
+        $this->restClient = new RestClient();
+        $this->restClient->requestApi();
+        $this->setFeed();
+    }
+
+    /**
+     *
+     */
+    public function setFeed()
+    {
+        $apiResponse = $this->restClient->getResponse();
+        $content = json_decode($apiResponse['content']);
         foreach ($content->_embedded->programmes as $key => $each_programme) {
             $image = $each_programme->_embedded->latestProduction->_links->image->href;
             $this->feed[$key] = [
@@ -40,8 +60,8 @@ class ContentFeed
 
 
     /**
-     * @param $imageUrl
-     * @param $width
+     * @param $imageUrl string
+     * @param $width integer
      * @return string
      */
     private function getEffectiveUrl($imageUrl, $width)

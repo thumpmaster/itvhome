@@ -1,10 +1,19 @@
 <?php
 
+/*
+|--------------------------------------------------------------------------
+| Rest Client for itv api
+|--------------------------------------------------------------------------
+|
+| This class is responsible for talking to the itv rest api and
+| and returning the response.
+|
+*/
+
 namespace App;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\TransferStats;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
@@ -12,12 +21,12 @@ use Mockery\Exception;
 
 /**
  * @property Client client
- * @property ContentFeed $contentFeed
  */
 class RestClient extends Model
 {
 
     const defaultContentSize = 21;
+    private $response;
 
     /**
      * RestClient constructor.
@@ -25,7 +34,6 @@ class RestClient extends Model
     public function __construct()
     {
         $this->client = new Client();
-        $this->contentFeed = new ContentFeed();
     }
 
 
@@ -42,28 +50,15 @@ class RestClient extends Model
             $request = $this->client->get($url, ['headers' => $header]);
             $response = $request->getBody()->getContents();
             log::debug('Api returned status code ' . $request->getStatusCode() . ' with response ' . $response);
-            return $this->getResponse($request->getStatusCode(), $response);
+            $this->setResponse($request->getStatusCode(), $response);
         }
         catch (RequestException $error)
         {
             $errorCode = $error->getResponse()->getStatusCode();
             $errorContent = $error->getResponse()->getBody();
             log::error('Error returned from api with http status code ' . $errorCode . 'with body ' . $errorContent);
-            return $this->getResponse($errorCode, $errorContent);
+            throw new Exception('Unable to fetch information from API');
         }
-    }
-
-
-    /**
-     * @return array
-     */
-    public function getParsedApiResponse() {
-        $rawApiData = $this->requestApi();
-        if($rawApiData['status'] == '200') {
-            log::info('Parsing response from API....');
-            $this->contentFeed->setFeed(json_decode($rawApiData['content']));
-        }
-        return $this->contentFeed->getFeed();
     }
 
 
@@ -72,12 +67,22 @@ class RestClient extends Model
      * @param $responseMessage string
      * @return array
      */
-    public function getResponse($responseCode, $responseMessage)
+    public function setResponse($responseCode, $responseMessage)
     {
-        return [
+        $response = [
             'status' => $responseCode,
             'content' => $responseMessage
         ];
+        $this->response = $response;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
 
 }
