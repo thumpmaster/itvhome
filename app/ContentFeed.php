@@ -14,6 +14,7 @@
 namespace App;
 
 use Illuminate\Support\Facades\Config;
+use Mockery\Exception;
 
 
 class ContentFeed
@@ -23,30 +24,36 @@ class ContentFeed
     const defaultImageQuality = 80;
     const heroImageWidth = 1200;
     const smallImageWidth = 320;
+    const defaultContentSize = 21;
 
-    public function __construct()
+    public function __construct($contentSize)
     {
         $this->restClient = new RestClient();
-        $this->restClient->requestApi();
+        $this->restClient->requestApi($contentSize);
         $this->setFeed();
     }
 
     /**
-     *
+     * @return void
      */
     public function setFeed()
     {
         $apiResponse = $this->restClient->getResponse();
         $content = json_decode($apiResponse['content']);
-        foreach ($content->_embedded->programmes as $key => $each_programme) {
-            $image = $each_programme->_embedded->latestProduction->_links->image->href;
-            $this->feed[$key] = [
-                'id' => $each_programme->id,
-                'title' => $each_programme->title,
-                'heroImage' => $this->getEffectiveUrl($image, self::heroImageWidth),
-                'smallImage' => $this->getEffectiveUrl($image, self::smallImageWidth),
-                'description' => $each_programme->synopses->ninety
-            ];
+        if(sizeof($content->_embedded->programmes) < self::defaultContentSize)
+        {
+            throw new Exception('Not enough content returned from api');
+        } else {
+            foreach ($content->_embedded->programmes as $key => $each_programme) {
+                $image = $each_programme->_embedded->latestProduction->_links->image->href;
+                $this->feed[$key] = [
+                    'id' => $each_programme->id,
+                    'title' => $each_programme->title,
+                    'heroImage' => $this->getEffectiveUrl($image, self::heroImageWidth),
+                    'smallImage' => $this->getEffectiveUrl($image, self::smallImageWidth),
+                    'description' => $each_programme->synopses->ninety
+                ];
+            }
         }
     }
 
@@ -64,7 +71,7 @@ class ContentFeed
      * @param $width integer
      * @return string
      */
-    private function getEffectiveUrl($imageUrl, $width)
+    public function getEffectiveUrl($imageUrl, $width)
     {
         $urlParts = parse_url($imageUrl);
         parse_str($urlParts['query'], $params);

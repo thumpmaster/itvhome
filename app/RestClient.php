@@ -25,7 +25,6 @@ use Mockery\Exception;
 class RestClient extends Model
 {
 
-    const defaultContentSize = 21;
     private $response;
 
     /**
@@ -38,13 +37,13 @@ class RestClient extends Model
 
 
     /**
-     * @return array|string
+     * @param $contentSize
      */
-    public function requestApi()
+    public function requestApi($contentSize)
     {
         try
         {
-            $url = Config::get('constants.API_URL') . '&size=' . self::defaultContentSize;
+            $url = Config::get('constants.API_URL') . '&size=' . $contentSize;
             $header = ['Accept' => Config::get('constants.API_HEADER')];
             log::info('Calling api.....');
             $request = $this->client->get($url, ['headers' => $header]);

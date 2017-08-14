@@ -11,10 +11,11 @@ class HomePageController extends Controller
 {
     const defaultContentBlocks = 3;
     const defaultRecommendedContentSize = 6;
+    const defaultContentSize = 21;
 
     public function index()
     {
-        $feed = new ContentFeed();
+        $feed = new ContentFeed(self::defaultContentSize);
         $contentFeed = $feed->getFeed();
         log::info('Content for the home page ' . json_encode($contentFeed));
         return view('pages.homepage', ['content' => $this->getContentWall($contentFeed)]);
@@ -24,7 +25,7 @@ class HomePageController extends Controller
     /**
      * All the presentation logic goes in this method
      *
-     * @param $content
+     * @param $content array
      * @return array
      */
     private function getContentWall($content)
