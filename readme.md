@@ -6,7 +6,7 @@ Install PHP 7 and laravel before accessing the app.
 
     sudo apt-get install php7.0
 
- Easiest way to install laravel is by using composer. If you dont hae composer, follow the instructions from the following link. https://getcomposer.org/doc/00-intro.md
+ Easiest way to install laravel is by using composer. If you don't have composer, follow the instructions from the following link. https://getcomposer.org/doc/00-intro.md
  
  Then run the following to install laravel.
  
