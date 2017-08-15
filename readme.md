@@ -16,6 +16,8 @@ Install PHP 7 and laravel before accessing the app.
     
  Then download or clone the repo, go to the root folder of the app and run
  
+    composer update --no-scripts 
+    composer update
     php artisan serve
  
  This will start the local server on http://localhost:8000 and when you access the url, you could see the homepage of itv.
